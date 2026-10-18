@@ -1,10 +1,16 @@
+<div align="center">
+
 # react-native-image-comparison
 
 Before/after image comparison slider for React Native. Drag the divider to compare two images, or any two views, side by side.
 
+<img src="assets/demo.gif" width="300" alt="Dragging the divider reveals a color photo of a jellyfish over its grayscale version" />
+
+</div>
+
 ## Installation
 
-Works with both Expo and React Native CLI apps on the New Architecture. The library itself is pure JS; it needs these peer dependencies:
+Works with both Expo and React Native CLI apps on the New Architecture. Expo Go is not supported because it bundles Gesture Handler 2, so use a [development build](https://docs.expo.dev/develop/development-builds/introduction/). The library itself is pure JS; it needs these peer dependencies:
 
 - `react-native-reanimated` >= 4.1
 - `react-native-worklets` >= 0.5
