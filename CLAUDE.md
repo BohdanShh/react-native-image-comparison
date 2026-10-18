@@ -31,7 +31,7 @@ The example consumes the library as a packed tarball, exactly like a published p
 ```sh
 bun run build
 bun pm pack --destination example
-cd example && bun remove react-native-image-comparison && bun add ./react-native-image-comparison-0.1.0.tgz
+cd example && bun remove react-native-image-comparison && bun add ./react-native-image-comparison-1.0.0.tgz
 ```
 
 `bun remove` first is required: re-adding a repacked tarball with the same version (even with `--force`) keeps the old contents because `example/bun.lock` pins the old integrity hash. Verify the new code landed in `example/node_modules/react-native-image-comparison`. `*.tgz` is gitignored.
