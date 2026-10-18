@@ -1,14 +1,22 @@
 import { StyleSheet, View } from 'react-native';
 
+import type { Orientation } from './types';
+
 export const HANDLE_SIZE = 40;
+
 const LINE_WIDTH = 2;
 const ARROW_SIZE = 8;
 
-export function Handle() {
+type HandleProps = {
+  orientation: Orientation;
+};
+
+export function Handle({ orientation }: HandleProps) {
   return (
     <>
-      <View style={styles.line} />
-      <View style={styles.knob}>
+      <View style={[styles.line, lineStyles[orientation]]} />
+
+      <View style={[styles.knob, orientation === 'vertical' && styles.knobVertical]}>
         <View style={[styles.arrow, styles.arrowLeft]} />
         <View style={[styles.arrow, styles.arrowRight]} />
       </View>
@@ -19,9 +27,6 @@ export function Handle() {
 const styles = StyleSheet.create({
   line: {
     position: 'absolute',
-    top: 0,
-    bottom: 0,
-    width: LINE_WIDTH,
     backgroundColor: 'white',
     boxShadow: '0 0 4px rgba(0, 0, 0, 0.3)',
   },
@@ -35,6 +40,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: ARROW_SIZE,
+  },
+  knobVertical: {
+    transform: [{ rotate: '90deg' }],
   },
   arrow: {
     width: ARROW_SIZE,
@@ -50,5 +58,18 @@ const styles = StyleSheet.create({
     borderRightWidth: LINE_WIDTH,
     borderTopWidth: LINE_WIDTH,
     transform: [{ rotate: '45deg' }],
+  },
+});
+
+const lineStyles = StyleSheet.create({
+  horizontal: {
+    top: 0,
+    bottom: 0,
+    width: LINE_WIDTH,
+  },
+  vertical: {
+    left: 0,
+    right: 0,
+    height: LINE_WIDTH,
   },
 });

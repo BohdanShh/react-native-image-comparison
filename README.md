@@ -73,6 +73,8 @@ function Handle({ position }: { position: SharedValue<number> }) {
 />;
 ```
 
+For `orientation="vertical"`, draw a horizontal line instead.
+
 ### Controlled position
 
 Pass your own shared value to move the divider from code or read its position:
@@ -95,18 +97,19 @@ export function Example() {
 
 ## API
 
-| Prop              | Type                                           | Default  | Description                                                                                    |
-| ----------------- | ---------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------- |
-| `before`          | `ReactNode`                                    | required | Content on the left of the divider.                                                            |
-| `after`           | `ReactNode`                                    | required | Content on the right of the divider.                                                           |
-| `initialPosition` | `number`                                       | `0.5`    | Starting divider position, from 0 (left) to 1 (right).                                         |
-| `position`        | `SharedValue<number>`                          |          | Divider position from 0 to 1, to control or read it from outside. Overrides `initialPosition`. |
-| `enabled`         | `boolean`                                      | `true`   | Whether the divider can be moved.                                                              |
-| `style`           | `StyleProp<ViewStyle>`                         |          | Style of the container.                                                                        |
-| `testID`          | `string`                                       |          | Used to locate the component in end-to-end tests.                                              |
-| `renderHandle`    | `(position: SharedValue<number>) => ReactNode` |          | Custom handle. Receives the divider position from 0 to 1.                                      |
-| `onSlidingStart`  | `(position: number) => void`                   |          | Called when the user starts dragging, with the divider position.                               |
-| `onSlidingEnd`    | `(position: number) => void`                   |          | Called when the user stops dragging, with the divider position.                                |
+| Prop              | Type                                           | Default        | Description                                                                                    |
+| ----------------- | ---------------------------------------------- | -------------- | ---------------------------------------------------------------------------------------------- |
+| `before`          | `ReactNode`                                    | required       | Content on the left of the divider, or above it when vertical.                                 |
+| `after`           | `ReactNode`                                    | required       | Content on the right of the divider, or below it when vertical.                                |
+| `orientation`     | `'horizontal' \| 'vertical'`                   | `'horizontal'` | Direction the divider moves in.                                                                |
+| `initialPosition` | `number`                                       | `0.5`          | Starting divider position, from 0 (left or top) to 1 (right or bottom).                        |
+| `position`        | `SharedValue<number>`                          |                | Divider position from 0 to 1, to control or read it from outside. Overrides `initialPosition`. |
+| `enabled`         | `boolean`                                      | `true`         | Whether the divider can be moved.                                                              |
+| `style`           | `StyleProp<ViewStyle>`                         |                | Style of the container.                                                                        |
+| `testID`          | `string`                                       |                | Used to locate the component in end-to-end tests.                                              |
+| `renderHandle`    | `(position: SharedValue<number>) => ReactNode` |                | Custom handle. Receives the divider position from 0 to 1.                                      |
+| `onSlidingStart`  | `(position: number) => void`                   |                | Called when the user starts dragging, with the divider position.                               |
+| `onSlidingEnd`    | `(position: number) => void`                   |                | Called when the user stops dragging, with the divider position.                                |
 
 ## License
 

@@ -2,12 +2,16 @@ import type { ReactNode } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { SharedValue } from 'react-native-reanimated';
 
+export type Orientation = 'horizontal' | 'vertical';
+
 export type ImageComparisonProps = {
-  /** Content on the left of the divider. */
+  /** Content on the left of the divider, or above it when vertical. */
   before: ReactNode;
-  /** Content on the right of the divider. */
+  /** Content on the right of the divider, or below it when vertical. */
   after: ReactNode;
-  /** Starting divider position, from 0 (left) to 1 (right). Defaults to 0.5. */
+  /** Direction the divider moves in. Defaults to `'horizontal'`. */
+  orientation?: Orientation;
+  /** Starting divider position, from 0 (left or top) to 1 (right or bottom). Defaults to 0.5. */
   initialPosition?: number;
   /** Divider position from 0 to 1, to control or read it from outside. Overrides `initialPosition`. */
   position?: SharedValue<number>;
