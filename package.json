@@ -4,7 +4,6 @@
   "description": "A smooth, customizable before/after slider for React Native.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
-  "react-native": "src/index.ts",
   "sideEffects": false,
   "files": [
     "lib",
