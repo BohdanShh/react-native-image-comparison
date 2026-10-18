@@ -10,19 +10,24 @@ export function ImageComparison({
   before,
   after,
   initialPosition = 0.5,
+  position: positionProp,
+  enabled = true,
   style,
+  testID,
   renderHandle,
   onSlidingStart,
   onSlidingEnd,
 }: ImageComparisonProps) {
   const width = useSharedValue(0);
-  const position = useSharedValue(Math.min(Math.max(initialPosition, 0), 1));
+  const internalPosition = useSharedValue(Math.min(Math.max(initialPosition, 0), 1));
+  const position = positionProp ?? internalPosition;
 
   const onLayout = (event: LayoutChangeEvent) => {
     width.value = event.nativeEvent.layout.width;
   };
 
   const pan = usePanGesture({
+    enabled,
     // Lets a parent vertical ScrollView keep scrolling when the drag is mostly vertical.
     activeOffsetX: [-10, 10],
     failOffsetY: [-10, 10],
@@ -55,7 +60,7 @@ export function ImageComparison({
 
   return (
     <GestureDetector gesture={pan}>
-      <View style={[styles.container, style]} onLayout={onLayout}>
+      <View style={[styles.container, style]} testID={testID} onLayout={onLayout}>
         {before}
         <Animated.View style={[StyleSheet.absoluteFill, styles.clip, clipStyle]}>
           <Animated.View style={[StyleSheet.absoluteFill, counterStyle]}>{after}</Animated.View>

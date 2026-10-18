@@ -9,8 +9,14 @@ export type ImageComparisonProps = {
   after: ReactNode;
   /** Starting divider position, from 0 (left) to 1 (right). Defaults to 0.5. */
   initialPosition?: number;
+  /** Divider position from 0 to 1, to control or read it from outside. Overrides `initialPosition`. */
+  position?: SharedValue<number>;
+  /** Whether the divider can be moved. Defaults to true. */
+  enabled?: boolean;
   /** Style of the container. */
   style?: StyleProp<ViewStyle>;
+  /** Used to locate the component in end-to-end tests. */
+  testID?: string;
   /** Custom handle. Receives the divider position from 0 to 1. */
   renderHandle?: (position: SharedValue<number>) => ReactNode;
   /** Called when the user starts dragging, with the divider position. */
