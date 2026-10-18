@@ -2,8 +2,7 @@ import { StyleSheet, View } from 'react-native';
 
 import type { Orientation } from './types';
 
-export const HANDLE_SIZE = 40;
-
+const HANDLE_SIZE = 40;
 const LINE_WIDTH = 2;
 const ARROW_SIZE = 8;
 

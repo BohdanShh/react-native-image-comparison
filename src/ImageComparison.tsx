@@ -7,7 +7,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 
-import { HANDLE_SIZE, Handle } from './Handle';
+import { Handle } from './Handle';
 import type { ImageComparisonProps } from './types';
 
 const DRAG_OFFSET: [number, number] = [-10, 10];
@@ -28,7 +28,7 @@ export function ImageComparison({
   const vertical = orientation === 'vertical';
 
   const size = useSharedValue({ width: 0, height: 0 });
-  // Container length along the drag axis; derived so changing `orientation` needs no new layout.
+  // Derived so changing `orientation` needs no new layout.
   const length = useDerivedValue(() => (vertical ? size.value.height : size.value.width));
 
   const internalPosition = useSharedValue(Math.min(Math.max(initialPosition, 0), 1));
@@ -84,33 +84,49 @@ export function ImageComparison({
     },
   });
 
+  // `before` gets its own clipped layer too, so it never shows through a transparent `after`.
+  const beforeClipStyle = useAnimatedStyle(() => ({
+    transform: [translate((position.value - 1) * length.value)],
+  }));
+
+  const beforeContentStyle = useAnimatedStyle(() => ({
+    transform: [translate((1 - position.value) * length.value)],
+  }));
+
   // Hidden until the first layout, otherwise `after` covers everything for a frame.
-  const clipStyle = useAnimatedStyle(() => ({
+  const afterClipStyle = useAnimatedStyle(() => ({
     opacity: length.value > 0 ? 1 : 0,
     transform: [translate(position.value * length.value)],
   }));
 
-  const counterStyle = useAnimatedStyle(() => ({
+  const afterContentStyle = useAnimatedStyle(() => ({
     transform: [translate(-position.value * length.value)],
   }));
 
+  // Centered in a full-size layer instead of offset from `left`, which RTL layouts flip.
   const handleStyle = useAnimatedStyle(() => ({
     opacity: length.value > 0 ? 1 : 0,
-    transform: [translate(position.value * length.value - HANDLE_SIZE / 2)],
+    transform: [translate((position.value - 0.5) * length.value)],
   }));
 
   return (
     <GestureDetector gesture={pan}>
       <View style={[styles.container, style]} testID={testID} onLayout={onLayout}>
-        {before}
+        <Animated.View style={[StyleSheet.absoluteFill, styles.clip, beforeClipStyle]}>
+          <Animated.View style={[StyleSheet.absoluteFill, beforeContentStyle]}>
+            {before}
+          </Animated.View>
+        </Animated.View>
 
-        <Animated.View style={[StyleSheet.absoluteFill, styles.clip, clipStyle]}>
-          <Animated.View style={[StyleSheet.absoluteFill, counterStyle]}>{after}</Animated.View>
+        <Animated.View style={[StyleSheet.absoluteFill, styles.clip, afterClipStyle]}>
+          <Animated.View style={[StyleSheet.absoluteFill, afterContentStyle]}>
+            {after}
+          </Animated.View>
         </Animated.View>
 
         <Animated.View
           pointerEvents="none"
-          style={[styles.handle, handleStyles[orientation], handleStyle]}
+          style={[StyleSheet.absoluteFill, styles.handle, handleStyle]}
         >
           {renderHandle ? renderHandle(position) : <Handle orientation={orientation} />}
         </Animated.View>
@@ -127,23 +143,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   handle: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-});
-
-const handleStyles = StyleSheet.create({
-  horizontal: {
-    top: 0,
-    bottom: 0,
-    width: HANDLE_SIZE,
-  },
-  vertical: {
-    left: 0,
-    right: 0,
-    height: HANDLE_SIZE,
   },
 });
