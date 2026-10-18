@@ -1,6 +1,6 @@
 # react-native-image-comparison
 
-Before/after image comparison slider for React Native.
+Before/after image comparison slider for React Native. Drag the divider to compare two images, or any two views, side by side.
 
 ## Installation
 
@@ -25,6 +25,37 @@ npx expo install react-native-image-comparison
 # React Native CLI
 npm install react-native-image-comparison
 ```
+
+## Usage
+
+```tsx
+import { Image, StyleSheet } from 'react-native';
+import { ImageComparison } from 'react-native-image-comparison';
+
+export function Example() {
+  return (
+    <ImageComparison
+      before={<Image source={require('./before.jpg')} style={StyleSheet.absoluteFill} />}
+      after={<Image source={require('./after.jpg')} style={StyleSheet.absoluteFill} />}
+      style={{ width: '100%', aspectRatio: 4 / 3 }}
+    />
+  );
+}
+```
+
+`before` and `after` can be any views and are rendered as is, so give them a size, usually `StyleSheet.absoluteFill`.
+
+## API
+
+| Prop              | Type                                           | Default  | Description                                                      |
+| ----------------- | ---------------------------------------------- | -------- | ---------------------------------------------------------------- |
+| `before`          | `ReactNode`                                    | required | Content on the left of the divider.                              |
+| `after`           | `ReactNode`                                    | required | Content on the right of the divider.                             |
+| `initialPosition` | `number`                                       | `0.5`    | Starting divider position, from 0 (left) to 1 (right).           |
+| `style`           | `StyleProp<ViewStyle>`                         |          | Style of the container.                                          |
+| `renderHandle`    | `(position: SharedValue<number>) => ReactNode` |          | Custom handle. Receives the divider position from 0 to 1.        |
+| `onSlidingStart`  | `(position: number) => void`                   |          | Called when the user starts dragging, with the divider position. |
+| `onSlidingEnd`    | `(position: number) => void`                   |          | Called when the user stops dragging, with the divider position.  |
 
 ## License
 

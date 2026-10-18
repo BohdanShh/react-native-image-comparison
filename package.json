@@ -17,11 +17,16 @@
   "keywords": [
     "react-native",
     "image",
-    "comparison",
-    "before-after",
     "compare",
+    "comparison",
     "slider",
-    "reanimated"
+    "reveal",
+    "image-comparison",
+    "image-compare",
+    "compare-slider",
+    "comparison-slider",
+    "before-after",
+    "before-after-slider"
   ],
   "author": "BohdanShh <bohdanshh.dev@gmail.com>",
   "license": "MIT",
