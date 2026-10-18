@@ -13,17 +13,18 @@ Compare two images or any two views with a draggable divider. Powered by Reanima
 ## Why this one
 
 - **Smooth UI-thread animations.** The gesture and every frame run on the UI thread with Reanimated worklets, animating transforms only. While you drag, nothing crosses to JS.
+- **iOS, Android and Web.** The same component and API on all three.
 - **Compare any two React views.** `before` and `after` are plain React nodes: images, videos, maps, whole screens.
+- **Customizable handle.** Render your own and animate it in sync with the divider.
 - **Horizontal and vertical orientations.** Switch with a single prop.
 - **Controlled position with SharedValue.** Drive the divider from code, or read where the user left it.
-- **Customizable handle.** Render your own and animate it in sync with the divider.
 - **ScrollView gesture compatibility.** Dragging along one axis keeps a parent ScrollView on the other axis scrolling.
 - **RTL support.** The handle stays on the divider in right-to-left layouts.
 - **No custom native code.** Pure TypeScript on top of Reanimated and Gesture Handler.
 
 ## Installation
 
-Works with both Expo and React Native CLI apps on the New Architecture. Expo Go is not supported because it bundles Gesture Handler 2, so use a [development build](https://docs.expo.dev/develop/development-builds/introduction/). The library itself is pure JS; it needs these peer dependencies:
+Works with both Expo and React Native CLI apps on the New Architecture. Expo Go is not supported because it bundles Gesture Handler 2, so use a [development build](https://docs.expo.dev/develop/development-builds/introduction/). On the web it runs through [React Native Web](https://necolas.github.io/react-native-web/). The library itself is pure JS; it needs these peer dependencies:
 
 - `react-native-reanimated` >= 4.1
 - `react-native-worklets` >= 0.5
