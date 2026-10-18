@@ -35,14 +35,17 @@ bun pm pack --destination example
 cd example && bun remove react-native-image-comparison && bun add ./react-native-image-comparison-1.0.0.tgz
 ```
 
-`bun remove` first is required: re-adding a repacked tarball with the same version (even with `--force`) keeps the old contents because `example/bun.lock` pins the old integrity hash. Verify the new code landed in `example/node_modules/react-native-image-comparison`. `*.tgz` is gitignored.
+`bun remove` first is required: re-adding a repacked tarball with the same version (even with `--force`) keeps the old contents because `example/bun.lock` pins the old integrity hash. Verify the new code landed in `example/node_modules/react-native-image-comparison`. `*.tgz` is gitignored. The tarball name carries the version: after bumping `package.json` `version`, use the new filename (and `example/package.json` will pin it).
 
-`tsc` passing is not enough: the Worklets Babel plugin only runs in Metro and rejects some valid TS (e.g. `...spread` inside a `usePanGesture({...})` config). After reinstalling, bundle the example and confirm "iOS Bundled" and "Web Bundled":
+`tsc` passing is not enough: the Worklets Babel plugin only runs in Metro and rejects some valid TS (e.g. `...spread` inside a `usePanGesture({...})` config). After reinstalling, typecheck the example and bundle it for every platform, confirming "iOS Bundled", "Android Bundled" and "Web Bundled":
 
 ```sh
 cd example && bunx expo export --platform ios --output-dir <tmp-dir> --clear
+cd example && bunx expo export --platform android --output-dir <tmp-dir> --clear
 cd example && bunx expo export --platform web --output-dir <tmp-dir> --clear
 ```
+
+CI (`.github/workflows/ci.yml`) runs exactly this pipeline on every PR: `format:check` → build → pack → reinstall into example → example `tsc --noEmit` → iOS/Android/web bundles. Keep its job id `check`: the `main` ruleset requires that status.
 
 Bun auto-installs peer dependencies into the root `node_modules` too; the example must only ever use its own copies of react / react-native / reanimated.
 
@@ -61,6 +64,8 @@ Per-frame work stays on the UI thread (gesture worklets, shared values, worklet 
 - The handle is centered in a full-size layer and offset by `(position - 0.5) * length`, not positioned via `left`, so RTL layouts don't flip it.
 - `after` and the handle stay `opacity: 0` until the first layout (`length > 0`), to avoid a one-frame flash.
 - Pan `activeOffset`/`failOffset` are set per axis so a parent ScrollView on the other axis keeps scrolling.
+- `length` is a `useDerivedValue` over the measured `{ width, height }`, so switching `orientation` needs no new layout.
+- `onSlidingStart`/`onSlidingEnd` are the only JS crossings, via `scheduleOnRN` in the pan's `onActivate`/`onDeactivate`.
 
 Props live in `types.ts`; the README API table mirrors them — update both together.
 
