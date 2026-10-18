@@ -4,14 +4,21 @@ on:
   pull_request:
   push:
     branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  # Cancel superseded PR runs, but let every push to main finish.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # Keep the job id: the main ruleset requires the "check" status.
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
 
@@ -23,22 +30,43 @@ jobs:
         with:
           node-version: 24
 
-      - run: bun install --frozen-lockfile
-      - run: bun run format:check
-      - run: bun run build
+      - uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock', 'example/bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
 
-      # Install the library into the example as a packed tarball, like a published package.
-      - run: bun pm pack --destination example
-      - working-directory: example
+      - name: Install
+        run: bun install --frozen-lockfile
+
+      - name: Format
+        run: bun run format:check
+
+      - name: Build
+        run: bun run build
+
+      - name: Pack
+        run: bun pm pack --destination example
+
+      - name: Install library into example
+        working-directory: example
         run: |
           bun remove react-native-image-comparison
           bun add ./react-native-image-comparison-$(node -p "require('../package.json').version").tgz
 
-      - working-directory: example
+      - name: Typecheck example
+        working-directory: example
         run: bunx tsc --noEmit
 
       # tsc doesn't run the Worklets Babel plugin; bundling does.
-      - working-directory: example
-        run: |
-          bunx expo export --platform ios --output-dir "$RUNNER_TEMP/ios" --clear
-          bunx expo export --platform web --output-dir "$RUNNER_TEMP/web" --clear
+      - name: Bundle iOS
+        working-directory: example
+        run: bunx expo export --platform ios --output-dir "$RUNNER_TEMP/ios"
+
+      - name: Bundle Android
+        working-directory: example
+        run: bunx expo export --platform android --output-dir "$RUNNER_TEMP/android"
+
+      - name: Bundle web
+        working-directory: example
+        run: bunx expo export --platform web --output-dir "$RUNNER_TEMP/web"
