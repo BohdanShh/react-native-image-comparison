@@ -2,11 +2,24 @@
 
 # react-native-image-comparison
 
-Before/after image comparison slider for React Native. Drag the divider to compare two images, or any two views, side by side.
+A smooth, customizable before/after slider for React Native.
+
+Compare two images or any two views with a draggable divider. Powered by Reanimated worklets for UI-thread gesture handling and animations.
 
 <img src="assets/demo.gif" width="300" alt="Dragging the divider reveals a color photo of a jellyfish over its grayscale version" />
 
 </div>
+
+## Why this one
+
+- **Smooth UI-thread animations.** The gesture and every frame run on the UI thread with Reanimated worklets, animating transforms only. While you drag, nothing crosses to JS.
+- **Compare any two React views.** `before` and `after` are plain React nodes: images, videos, maps, whole screens.
+- **Horizontal and vertical orientations.** Switch with a single prop.
+- **Controlled position with SharedValue.** Drive the divider from code, or read where the user left it.
+- **Customizable handle.** Render your own and animate it in sync with the divider.
+- **ScrollView gesture compatibility.** Dragging along one axis keeps a parent ScrollView on the other axis scrolling.
+- **RTL support.** The handle stays on the divider in right-to-left layouts.
+- **No custom native code.** Pure TypeScript on top of Reanimated and Gesture Handler.
 
 ## Installation
 
