@@ -1,2 +1,2 @@
 export { ImageComparison } from './ImageComparison';
-export type { ImageComparisonProps } from './types';
+export type { ImageComparisonProps, Orientation } from './types';
