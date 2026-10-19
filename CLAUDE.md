@@ -13,7 +13,7 @@ Goals, in priority order when they conflict: **few bugs** (one gesture, no overl
 Package manager is **Bun** (both root and `example/`); don't use npm/yarn or create `package-lock.json`.
 
 ```sh
-bun run build          # tsc → lib/
+bun run build          # clean lib/, then tsc → lib/
 bun run format         # prettier --write .
 bun run format:check   # prettier --check .
 cd example && bunx tsc --noEmit         # typecheck the example

@@ -10,7 +10,7 @@
     "src"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf lib && tsc",
     "prepublishOnly": "bun run build",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
