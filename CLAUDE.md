@@ -13,7 +13,7 @@ Goals, in priority order when they conflict: **few bugs** (one gesture, no overl
 Package manager is **Bun** (both root and `example/`); don't use npm/yarn or create `package-lock.json`.
 
 ```sh
-bun run build          # tsc → lib/
+bun run build          # clean lib/, then tsc → lib/
 bun run format         # prettier --write .
 bun run format:check   # prettier --check .
 cd example && bunx tsc --noEmit         # typecheck the example
@@ -32,10 +32,10 @@ The example consumes the library as a packed tarball, exactly like a published p
 ```sh
 bun run build
 bun pm pack --destination example
-cd example && bun remove react-native-image-comparison && bun add ./react-native-image-comparison-1.0.0.tgz
+cd example && bun remove react-native-image-comparison && bun add ./react-native-image-comparison-$(node -p "require('../package.json').version").tgz
 ```
 
-`bun remove` first is required: re-adding a repacked tarball with the same version (even with `--force`) keeps the old contents because `example/bun.lock` pins the old integrity hash. Verify the new code landed in `example/node_modules/react-native-image-comparison`. `*.tgz` is gitignored. The tarball name carries the version: after bumping `package.json` `version`, use the new filename (and `example/package.json` will pin it).
+`bun remove` first is required: re-adding a repacked tarball with the same version (even with `--force`) keeps the old contents because `example/bun.lock` pins the old integrity hash. Verify the new code landed in `example/node_modules/react-native-image-comparison`. `*.tgz` is gitignored. The tarball name carries the version (hence the `node -p`, same as CI); `example/package.json` pins that filename, so bumping `version` changes it there too.
 
 `tsc` passing is not enough: the Worklets Babel plugin only runs in Metro and rejects some valid TS (e.g. `...spread` inside a `usePanGesture({...})` config). After reinstalling, typecheck the example and bundle it for every platform, confirming "iOS Bundled", "Android Bundled" and "Web Bundled":
 
@@ -51,21 +51,24 @@ Bun auto-installs peer dependencies into the root `node_modules` too; the exampl
 
 ## Layout
 
-- `src/` — library source (entry `src/index.ts`), compiled by plain `tsc` to `lib/` (`main`/`types` point there). No bundler, no builder-bob. TypeScript `strict`, no `any` / `@ts-ignore`, named exports. Comment only what isn't obvious from the code; don't comment everything. Flat layout like `react-native-pager-view`: every file sits directly in `src/` — `index.ts` (public exports), `ImageComparison.tsx`, `Handle.tsx` (default handle), `types.ts`; add `constants.ts`, `use*.ts` hooks or `utils.ts` (pure worklet functions only) next to them only when there's something to put there. No folders or re-export-only `index.ts` files; what's public is decided only by `src/index.ts`.
+- `src/` — library source (entry `src/index.ts`), compiled by plain `tsc` to `lib/` (`main`/`types` point there). No bundler, no builder-bob. TypeScript `strict`, no `any` / `@ts-ignore`, named exports. Comment only what isn't obvious from the code; don't comment everything. Files are grouped by kind: `src/components/` — `ImageComparison.tsx` (wires layout, position and the hooks together), `Handle.tsx` (default handle); `src/hooks/` — one hook per concern: `useDividerPan.ts` (pan gesture), `useLayerStyles.ts` (animated layer styles), `useSliderAccessibility.ts` (screen reader props and actions); `src/utils/` — pure worklet functions, one per file named after it (`clamp01.ts`); `src/constants/` — one file per concern (`gesture.ts`, `accessibility.ts`); and directly in `src/` — `index.ts` (public exports), `types.ts`. Add more files only when there's something to put there. No re-export-only `index.ts` files in the folders (import from each file directly); what's public is decided only by `src/index.ts`.
 - `example/` — standalone Expo app (SDK 57) with its own `package.json` and `bun.lock`. Runs as a native debug build via `expo run:*` (or in the browser via `expo start --web`), not Expo Go (Expo Go bundles gesture-handler 2.x; the library needs 3.x). `ios/` and `android/` are generated from `app.json` and gitignored. It must only use the library's public API. Its `package.json` enables Reanimated's `IOS_SYNCHRONOUSLY_UPDATE_UI_PROPS` / `ANDROID_SYNCHRONOUSLY_UPDATE_UI_PROPS` static flags; changing them needs a native rebuild. Judge smoothness only on release builds (`--configuration Release` / `--variant release`).
 
 Per-frame work stays on the UI thread (gesture worklets, shared values, worklet math); cross to JS only on discrete events, never in `onUpdate`. Animate transforms/opacity only — clip the "after" image with an `overflow: hidden` container and counter-translated content, never by animating `width`.
 
+Keep identities stable across renders: the `usePanGesture` config is `useMemo`'d (a new object makes gesture-handler resend it to native and rebuild the handlers), and worklet helpers used inside `useAnimatedStyle` live at module level (a function created per render restarts every animated style). Callbacks passed into the pan go through `useCallback` for the same reason.
+
 ## How the slider works
 
-`ImageComparison.tsx` stacks three absolute-fill layers inside one `GestureDetector` (pan): `before` clip layer, `after` clip layer, handle layer (`pointerEvents="none"`). The divider position is a normalized 0–1 `SharedValue` (the `position` prop if passed, otherwise internal); pixels come from `length` = width or height of the measured container depending on `orientation`. Every layer is positioned purely by `translateX/Y` of `position * length`:
+`components/ImageComparison.tsx` stacks three absolute-fill layers inside one `GestureDetector` (pan): `before` clip layer, `after` clip layer, handle layer (`pointerEvents="none"`). The divider position is a normalized 0–1 `SharedValue` (the `position` prop if passed, otherwise internal); pixels come from `length` = width or height of the measured container depending on `orientation`. Every layer is positioned purely by `translateX/Y` of `position * length`:
 
 - Both `before` and `after` are clipped (outer view translated, inner content counter-translated) so `before` never shows through a transparent `after`.
 - The handle is centered in a full-size layer and offset by `(position - 0.5) * length`, not positioned via `left`, so RTL layouts don't flip it.
 - `after` and the handle stay `opacity: 0` until the first layout (`length > 0`), to avoid a one-frame flash.
 - Pan `activeOffset`/`failOffset` are set per axis so a parent ScrollView on the other axis keeps scrolling.
 - `length` is a `useDerivedValue` over the measured `{ width, height }`, so switching `orientation` needs no new layout.
-- `onSlidingStart`/`onSlidingEnd` are the only JS crossings, via `scheduleOnRN` in the pan's `onActivate`/`onDeactivate`.
+- `onSlidingStart`/`onSlidingEnd` are the only JS crossings, via `scheduleOnRN` in the pan's `onActivate`/`onDeactivate`; `onDeactivate` also syncs the one piece of React state, the percent announced to screen readers.
+- Accessibility: the container is `role="slider"` with `aria-*` (not `accessibility*`, which react-native-web ignores), except on iOS, where it is `accessibilityRole="adjustable"` because Fabric doesn't map `role="slider"` to the adjustable trait (VoiceOver swipes wouldn't adjust it); the trait already provides increment/decrement there, so `accessibilityActions` is only passed on other platforms (listing them on iOS duplicates them). `increment`/`decrement` actions step from the announced percent (not the possibly mid-animation `position`), move `position` with `withTiming` and call `onSlidingEnd`; these actions are native-only.
 
 Props live in `types.ts`; the README API table mirrors them — update both together.
 

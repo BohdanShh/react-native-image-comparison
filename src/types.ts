@@ -21,10 +21,12 @@ export type ImageComparisonProps = {
   style?: StyleProp<ViewStyle>;
   /** Used to locate the component in end-to-end tests. */
   testID?: string;
+  /** What screen readers announce for the slider, e.g. "Photo before and after retouching". */
+  accessibilityLabel?: string;
   /** Custom handle. Receives the divider position from 0 to 1. */
   renderHandle?: (position: SharedValue<number>) => ReactNode;
   /** Called when the user starts dragging, with the divider position. */
   onSlidingStart?: (position: number) => void;
-  /** Called when the user stops dragging, with the divider position. */
+  /** Called when the user stops dragging or moves the divider with a screen reader, with the divider position. */
   onSlidingEnd?: (position: number) => void;
 };
