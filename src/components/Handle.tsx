@@ -1,6 +1,7 @@
+import { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import type { Orientation } from './types';
+import type { Orientation } from '../types';
 
 const HANDLE_SIZE = 40;
 const LINE_WIDTH = 2;
@@ -10,7 +11,7 @@ type HandleProps = {
   orientation: Orientation;
 };
 
-export function Handle({ orientation }: HandleProps) {
+export const Handle = memo(function Handle({ orientation }: HandleProps) {
   return (
     <>
       <View style={[styles.line, lineStyles[orientation]]} />
@@ -21,7 +22,7 @@ export function Handle({ orientation }: HandleProps) {
       </View>
     </>
   );
-}
+});
 
 const styles = StyleSheet.create({
   line: {
