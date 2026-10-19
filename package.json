@@ -1,7 +1,7 @@
 {
   "name": "react-native-image-comparison",
   "version": "1.0.0",
-  "description": "A smooth, customizable before/after slider for React Native.",
+  "description": "A tiny, smooth, customizable before/after slider for React Native.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "sideEffects": false,
